@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cutpoint: Story-first editing, with the work shown</title>
+<meta name="description" content="Cutpoint is an AI-driven, voice-native video editor built for any kind of video editor. Give it your script and footage. Talk to it. See every editorial decision.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cutpoint.studio/">
+<meta property="og:title" content="Cutpoint: A story-driven video editor">
+<meta property="og:description" content="Every decision shown, every alternative ready. Give it your script and footage. Talk to it. Take the timeline into Premiere, Avid or any NLE for finishing.">
+<meta property="og:image" content="https://cutpoint.studio/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cutpoint: A story-driven video editor">
+<meta name="twitter:description" content="Every decision shown, every alternative ready.">
+<meta name="twitter:image" content="https://cutpoint.studio/og-image.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect fill='%23EFE5D7' width='32' height='32' rx='7'/%3E%3Ctext x='4' y='25' font-family='system-ui,-apple-system,sans-serif' font-weight='900' font-size='26' fill='%23171514'%3ECt%3C/text%3E%3Crect fill='%23B34F3C' x='22.5' y='3' width='2.5' height='26' rx='1.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Cabin:wght@400;500;600;700&family=PT+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cp-color-bone: #EFE5D7;
+    --cp-color-paper: #F7F1E8;
+    --cp-color-warm-white: #F5EEE5;
+    --cp-color-mist: #D6CCBE;
+    --cp-color-stone: #A79C90;
+    --cp-color-graphite: #645B52;
+    --cp-color-graphite-muted: #8E8378;
+    --cp-color-carbon: #171514;
+    --cp-color-carbon-soft: #2B2724;
+    --cp-color-carbon-raised: #3B342E;
+    --cp-color-margin-red: #B34F3C;
+    --cp-color-signal-blue: #6075CB;
+    --cp-color-cutter-green: #5F876B;
+    --cp-color-cue-amber: #B38B50;
+    --cp-font-brand: 'Geist', 'Cabin', system-ui, -apple-system, sans-serif;
+    --cp-font-proof: 'PT Mono', 'Courier New', monospace;
+    --cp-radius-card: 18px;
+    --cp-radius-chip: 14px;
+    --cp-radius-tile: 24px;
+    --cp-duration-micro: 160ms;
+    --cp-duration-state: 280ms;
+    --cp-duration-structural: 400ms;
+    --cp-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--cp-font-brand);
+    background-color: var(--cp-color-bone);
+    color: var(--cp-color-carbon);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem clamp(1.5rem, 8vw, 10rem);
+    position: relative;
+  }
+
+  .content {
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* ── Wordmark (v1 logotype) ── */
+  .wordmark {
+    font-family: 'Geist', var(--cp-font-brand);
+    font-weight: 900;
+    font-size: 2.75rem;
+    letter-spacing: -0.04em;
+    color: var(--cp-color-carbon);
+    margin-bottom: 1.75rem;
+    display: inline-flex;
+    align-items: baseline;
+    line-height: 1;
+  }
+  .wordmark .t-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .wordmark .t-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0.06em;
+    top: -0.15em;
+    bottom: -0.08em;
+    width: 3.5px;
+    background: var(--cp-color-margin-red);
+    border-radius: 2px;
+    z-index: 2;
+  }
+
+  /* ── Tagline ── */
+  .tagline {
+    font-family: var(--cp-font-proof);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--cp-color-graphite);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+  }
+
+  /* ── Description ── */
+  .description {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--cp-color-graphite);
+    margin-bottom: 1.75rem;
+    max-width: 480px;
+  }
+
+  .description strong {
+    color: var(--cp-color-carbon);
+    font-weight: 600;
+  }
+
+  /* ── Kicker (pain line above email form) ── */
+  .kicker {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--cp-color-carbon);
+    font-weight: 500;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+  }
+
+  /* ── Email form ── */
+  .email-form {
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: 1rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.625rem;
+    width: 100%;
+  }
+
+  .email-input {
+    flex: 1;
+    font-family: var(--cp-font-brand);
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.125rem;
+    border: 1.5px solid var(--cp-color-mist);
+    border-radius: var(--cp-radius-chip);
+    background: var(--cp-color-warm-white);
+    color: var(--cp-color-carbon);
+    outline: none;
+    transition: border-color var(--cp-duration-state) var(--cp-ease-standard),
+                box-shadow var(--cp-duration-state) var(--cp-ease-standard);
+  }
+
+  .email-input::placeholder {
+    color: var(--cp-color-stone);
+  }
+
+  .email-input:focus {
+    border-color: var(--cp-color-graphite);
+    box-shadow: 0 0 0 3px rgba(100, 91, 82, 0.1);
+  }
+
+  .submit-btn {
+    font-family: var(--cp-font-brand);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: var(--cp-radius-chip);
+    background: var(--cp-color-carbon);
+    color: var(--cp-color-bone);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--cp-duration-state) var(--cp-ease-standard),
+                transform var(--cp-duration-micro) var(--cp-ease-standard);
+  }
+
+  .submit-btn:hover {
+    background: var(--cp-color-carbon-soft);
+  }
+
+  .submit-btn:active {
+    transform: scale(0.97);
+  }
+
+  .form-note {
+    font-family: var(--cp-font-proof);
+    font-size: 0.6875rem;
+    color: var(--cp-color-stone);
+    margin-top: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Success state ── */
+  .success-message {
+    display: none;
+    font-size: 1rem;
+    color: var(--cp-color-cutter-green);
+    font-weight: 500;
+    padding: 1rem 0;
+  }
+
+  .email-form.submitted .form-row,
+  .email-form.submitted .form-note {
+    display: none;
+  }
+
+  .email-form.submitted .success-message {
+    display: block;
+  }
+
+  /* ── Features strip ── */
+  .features {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--cp-color-mist);
+    max-width: 520px;
+    width: 100%;
+  }
+
+  .feature {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+  }
+
+  .feature-label {
+    font-family: var(--cp-font-proof);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--cp-color-graphite-muted);
+    text-transform: uppercase;
+  }
+
+  .feature-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--cp-color-graphite);
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: left;
+    padding: 2rem clamp(1.5rem, 8vw, 10rem);
+    font-family: var(--cp-font-proof);
+    font-size: 0.6875rem;
+    color: var(--cp-color-stone);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Decorative vertical lines (brand motif) ── */
+  .lines-left, .lines-right {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    pointer-events: none;
+  }
+
+  .lines-left {
+    left: clamp(24px, 5vw, 80px);
+    background: var(--cp-color-mist);
+    opacity: 0.5;
+  }
+
+  .lines-right {
+    right: clamp(24px, 5vw, 80px);
+    background: var(--cp-color-mist);
+    opacity: 0.5;
+  }
+
+  .margin-line {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: clamp(32px, 5.5vw, 88px);
+    width: 1px;
+    background: var(--cp-color-margin-red);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 520px) {
+    .wordmark {
+      font-size: 1.75rem;
+    }
+
+    .description {
+      font-size: 1rem;
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .features {
+      gap: 1.5rem;
+    }
+
+    .lines-left, .lines-right, .margin-line {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Brand motif: vertical lines -->
+<div class="lines-left"></div>
+<div class="margin-line"></div>
+<div class="lines-right"></div>
+
+<main class="page">
+  <div class="content">
+
+    <!-- Wordmark (v1 logotype: red line through the "t") -->
+    <h1 class="wordmark">Cutpoin<span class="t-wrap">t</span></h1>
+
+    <!-- Tagline -->
+    <p class="tagline">A story-driven video editor.<br>Every decision shown, every alternative ready.</p>
+
+    <!-- Description -->
+    <p class="description">
+      <strong>Built for any kind of video editor. AI-driven, voice-native.</strong>
+      Give it your script and footage. Talk to it.
+      See every editorial decision: the selects it chose,
+      the alternatives it considered, and why.
+      Then take the timeline into Premiere, Avid or any NLE for finishing.
+    </p>
+
+    <!-- Kicker / pain line -->
+    <p class="kicker">The first cut is the slowest part. Cutpoint gets you to a strong first cut while you watch the work.</p>
+
+    <!-- Email signup -->
+    <form class="email-form" id="signupForm" onsubmit="handleSignup(event)">
+      <div class="form-row">
+        <input
+          type="email"
+          class="email-input"
+          placeholder="Your email"
+          required
+          aria-label="Email address"
+          id="emailInput"
+        >
+        <button type="submit" class="submit-btn">Get early access</button>
+      </div>
+      <p class="form-note">We'll reach out when we're recruiting design partners. About once a month, no spam.</p>
+      <p class="success-message">You're on the list. We'll be in touch.</p>
+    </form>
+
+    <!-- Feature strip -->
+    <div class="features">
+      <div class="feature">
+        <span class="feature-label">Input</span>
+        <span class="feature-value">Script + footage</span>
+      </div>
+      <div class="feature">
+        <span class="feature-label">Interaction</span>
+        <span class="feature-value">Voice-native</span>
+      </div>
+      <div class="feature">
+        <span class="feature-label">Output</span>
+        <span class="feature-value">Any NLE project</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  Cutpoint &middot; 2026
+</footer>
+
+<script>
+function handleSignup(e) {
+  e.preventDefault();
+  const form = document.getElementById('signupForm');
+  const btn = form.querySelector('.submit-btn');
+  const email = document.getElementById('emailInput').value;
+
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  fetch('https://formspree.io/f/xpqodelp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email: email })
+  })
+  .then(function(res) {
+    if (res.ok) {
+      form.classList.add('submitted');
+    } else {
+      btn.textContent = 'Get early access';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again.');
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Get early access';
+    btn.disabled = false;
+    alert('Connection error. Please try again.');
+  });
+}
+</script>
+</body>
+</html>
