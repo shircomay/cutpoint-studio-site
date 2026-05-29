@@ -3,441 +3,907 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cutpoint: Story-first editing, with the work shown</title>
-<meta name="description" content="Cutpoint is an AI-driven, voice-native video editor built for any kind of video editor. Give it your script and footage. Talk to it. See every editorial decision.">
+<title>Cutpoint — software handles the turnover, you handle the film</title>
+<meta name="description" content="The source of truth for post-production changes. Every department works from the same cut, in parallel. Conforms, round-trips, and version tracking run themselves.">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cutpoint.studio/">
-<meta property="og:title" content="Cutpoint: A story-driven video editor">
-<meta property="og:description" content="Every decision shown, every alternative ready. Give it your script and footage. Talk to it. Take the timeline into Premiere, Avid or any NLE for finishing.">
+<meta property="og:title" content="Cutpoint — software handles the turnover, you handle the film">
+<meta property="og:description" content="Version control for post-production. Every department works from the same cut, in parallel.">
 <meta property="og:image" content="https://cutpoint.studio/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Cutpoint: A story-driven video editor">
-<meta name="twitter:description" content="Every decision shown, every alternative ready.">
+<meta name="twitter:title" content="Cutpoint — software handles the turnover, you handle the film">
+<meta name="twitter:description" content="Version control for post-production. Every department works from the same cut, in parallel.">
 <meta name="twitter:image" content="https://cutpoint.studio/og-image.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect fill='%23EFE5D7' width='32' height='32' rx='7'/%3E%3Ctext x='4' y='25' font-family='system-ui,-apple-system,sans-serif' font-weight='900' font-size='26' fill='%23171514'%3ECt%3C/text%3E%3Crect fill='%23B34F3C' x='22.5' y='3' width='2.5' height='26' rx='1.25'/%3E%3C/svg%3E">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23EFE5D7' width='32' height='32' rx='7'/%3E%3Ctext x='4' y='25' font-family='system-ui,-apple-system,sans-serif' font-weight='900' font-size='26' fill='%23171514'%3ECt%3C/text%3E%3Crect fill='%23B34F3C' x='22.5' y='3' width='2.5' height='26' rx='1.25'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Cabin:wght@400;500;600;700&family=PT+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=PT+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cp-color-bone: #EFE5D7;
-    --cp-color-paper: #F7F1E8;
-    --cp-color-warm-white: #F5EEE5;
-    --cp-color-mist: #D6CCBE;
-    --cp-color-stone: #A79C90;
-    --cp-color-graphite: #645B52;
-    --cp-color-graphite-muted: #8E8378;
-    --cp-color-carbon: #171514;
-    --cp-color-carbon-soft: #2B2724;
-    --cp-color-carbon-raised: #3B342E;
-    --cp-color-margin-red: #B34F3C;
-    --cp-color-signal-blue: #6075CB;
-    --cp-color-cutter-green: #5F876B;
-    --cp-color-cue-amber: #B38B50;
-    --cp-font-brand: 'Geist', 'Cabin', system-ui, -apple-system, sans-serif;
-    --cp-font-proof: 'PT Mono', 'Courier New', monospace;
-    --cp-radius-card: 18px;
-    --cp-radius-chip: 14px;
-    --cp-radius-tile: 24px;
-    --cp-duration-micro: 160ms;
-    --cp-duration-state: 280ms;
-    --cp-duration-structural: 400ms;
-    --cp-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+    --bone: #EFE5D7;
+    --paper: #F7F1E8;
+    --warm-white: #F5EEE5;
+    --mist: #D6CCBE;
+    --stone: #A79C90;
+    --graphite: #645B52;
+    --graphite-muted: #8E8378;
+    --carbon: #171514;
+    --carbon-soft: #2B2724;
+    --carbon-raised: #3B342E;
+    --carbon-line: rgba(255,255,255,0.08);
+    --margin-red: #B34F3C;
+    --signal-blue: #6075CB;
+    --cutter-green: #5F876B;
+    --cue-amber: #B38B50;
+    --font-brand: 'Geist', system-ui, -apple-system, sans-serif;
+    --font-proof: 'PT Mono', 'Courier New', monospace;
+    --radius-card: 18px;
+    --radius-tile: 24px;
   }
 
-  *, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-padding-top: 84px; }
+  html, body { background: var(--bone); }
+  body { font-family: var(--font-brand); color: var(--carbon); line-height: 1.5; overflow-x: hidden; }
+  ::selection { background: var(--margin-red); color: var(--paper); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .container-wide { max-width: 1320px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── Logotype ── */
+  .cp-logotype { display: inline-flex; align-items: baseline; font-weight: 900; letter-spacing: -0.04em; line-height: 1; font-family: var(--font-brand); }
+  .cp-logotype .t-wrap { position: relative; display: inline-block; }
+  .cp-logotype .t-wrap::after {
+    content: ''; position: absolute; left: 0.06em; top: -0.15em; bottom: -0.08em;
+    width: 0.06em; min-width: 2px; background: var(--margin-red); border-radius: 2px; z-index: 2;
   }
 
-  html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(239, 229, 215, 0.82);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid transparent; transition: border-color 200ms, background 200ms;
+  }
+  .nav.scrolled { border-bottom-color: var(--mist); background: rgba(239, 229, 215, 0.95); }
+  .nav-inner { max-width: 1320px; margin: 0 auto; padding: 13px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--carbon); flex-shrink: 0; }
+  .nav-brand svg { width: 28px; height: 28px; border-radius: 22.37%; }
+  .nav-brand .cp-logotype { font-size: 18px; }
+  .nav-links { display: flex; gap: 2px; list-style: none; }
+  .nav-links a {
+    font-size: 12.5px; font-weight: 500; color: var(--graphite); text-decoration: none;
+    padding: 8px 12px; border-radius: 999px; white-space: nowrap; transition: all 160ms;
+  }
+  .nav-links a:hover { color: var(--carbon); background: var(--mist); }
+  .nav-cta {
+    font-family: var(--font-brand); font-size: 12.5px; font-weight: 600; color: var(--paper);
+    background: var(--carbon); border: none; padding: 9px 16px; border-radius: 999px;
+    cursor: pointer; text-decoration: none; white-space: nowrap; transition: background 160ms; flex-shrink: 0;
+  }
+  .nav-cta:hover { background: var(--carbon-soft); }
+  @media (max-width: 1180px) { .nav-links { display: none; } }
+
+  /* ── BANNER ── */
+  .topbanner {
+    background: var(--carbon); color: var(--paper);
+    font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    text-align: center; padding: 8px 16px;
+  }
+  .topbanner .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--margin-red);
+    margin-right: 9px; vertical-align: 1px; animation: pulse 2.4s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(179, 79, 60, 0.5); }
+    70% { box-shadow: 0 0 0 7px rgba(179, 79, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(179, 79, 60, 0); }
   }
 
-  body {
-    font-family: var(--cp-font-brand);
-    background-color: var(--cp-color-bone);
-    color: var(--cp-color-carbon);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
+  /* ── HERO ── */
+  .hero { padding: 132px 0 70px; }
+  .hero-lockup { display: flex; align-items: center; gap: 18px; margin-bottom: 30px; }
+  .hero-mark { width: clamp(64px, 7vw, 92px); height: clamp(64px, 7vw, 92px); border-radius: clamp(14px, 1.6vw, 20px); display: block; flex-shrink: 0; }
+  .hero-wordmark { font-size: clamp(40px, 5vw, 68px); color: var(--carbon); }
+  .hero h1 {
+    font-size: clamp(44px, 6.4vw, 92px); font-weight: 800; line-height: 0.98; letter-spacing: -0.04em;
+    color: var(--carbon); max-width: 17ch; margin-bottom: 30px;
   }
-
-  /* ── Layout ── */
-  .page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 3rem clamp(1.5rem, 8vw, 10rem);
-    position: relative;
+  .hero h1 .accent { color: var(--margin-red); }
+  .hero-lede { font-size: clamp(17px, 1.7vw, 21px); line-height: 1.5; color: var(--graphite); max-width: 60ch; margin-bottom: 38px; }
+  .hero-lede strong { color: var(--carbon); font-weight: 600; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    font-family: var(--font-brand); font-size: 14px; font-weight: 600; padding: 14px 26px; border-radius: 999px;
+    border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 160ms;
   }
+  .btn-primary { background: var(--carbon); color: var(--paper); }
+  .btn-primary:hover { background: var(--carbon-soft); transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--carbon); border: 1px solid var(--mist); }
+  .btn-ghost:hover { border-color: var(--graphite); }
 
-  .content {
-    max-width: 600px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
+  /* ── DIAGRAM (hero visual) ── */
+  .diagram-section { padding: 20px 0 90px; }
+  .diagram {
+    background: var(--carbon); border-radius: 24px; padding: 28px 32px 32px; color: var(--paper); position: relative; overflow: hidden;
   }
-
-  /* ── Wordmark (v1 logotype) ── */
-  .wordmark {
-    font-family: 'Geist', var(--cp-font-brand);
-    font-weight: 900;
-    font-size: 2.75rem;
-    letter-spacing: -0.04em;
-    color: var(--cp-color-carbon);
-    margin-bottom: 1.75rem;
-    display: inline-flex;
-    align-items: baseline;
-    line-height: 1;
+  .diagram-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .diagram-title { font-size: 14px; font-weight: 600; color: var(--paper); }
+  .diagram-title .muted { color: var(--stone); font-weight: 400; }
+  .diagram-trace { font-family: var(--font-proof); font-size: 11px; color: var(--stone); }
+  .diagram-trace .live { color: var(--cutter-green); }
+  .diagram-trace .live::before {
+    content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--cutter-green); margin-right: 7px; vertical-align: 1px;
   }
-  .wordmark .t-wrap {
-    position: relative;
-    display: inline-block;
+  .diagram-tracks { display: grid; grid-template-columns: 100px 1fr; gap: 14px; }
+  .track-list { display: flex; flex-direction: column; gap: 5px; }
+  .track-list div {
+    height: 18px; font-family: var(--font-proof); font-size: 10px; color: var(--stone); display: flex; align-items: center;
+    text-transform: uppercase; letter-spacing: 0.04em;
   }
-  .wordmark .t-wrap::after {
-    content: '';
-    position: absolute;
-    left: 0.06em;
-    top: -0.15em;
-    bottom: -0.08em;
-    width: 3.5px;
-    background: var(--cp-color-margin-red);
-    border-radius: 2px;
-    z-index: 2;
+  .track-list div.changed { color: var(--margin-red); }
+  .timeline { position: relative; display: grid; grid-template-columns: repeat(24, 1fr); grid-template-rows: repeat(9, 18px); gap: 5px; margin-bottom: 16px; }
+  .tl-clip { border-radius: 5px; background: var(--carbon-raised); }
+  .tl-clip.green { background: var(--cutter-green); }
+  .tl-clip.blue { background: var(--signal-blue); }
+  .tl-clip.amber { background: var(--cue-amber); }
+  .tl-clip.stone { background: var(--stone); }
+  .tl-clip.muted { background: var(--carbon-raised); opacity: 0.6; }
+  .tl-clip.stale { background: repeating-linear-gradient(45deg, var(--carbon-raised) 0 4px, var(--margin-red) 4px 5px); border: 1px dashed var(--margin-red); }
+  .tl-cut { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--margin-red); border-radius: 1px; }
+  .tl-cut::before, .tl-cut::after { content: ''; position: absolute; left: -3px; width: 8px; height: 8px; background: var(--margin-red); border-radius: 50%; }
+  .tl-cut::before { top: -8px; }
+  .tl-cut::after { bottom: -8px; }
+  .ruler { display: grid; grid-template-columns: repeat(24, 1fr); gap: 5px; font-family: var(--font-proof); font-size: 10px; color: var(--stone); margin-bottom: 16px; }
+  .ruler span { grid-column: span 6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px; }
+  .legend { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--carbon-line); }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-family: var(--font-proof); font-size: 10.5px; color: var(--stone); text-transform: uppercase; letter-spacing: 0.05em; }
+  .legend-swatch { width: 14px; height: 9px; border-radius: 2px; background: var(--stone); }
+  .legend-swatch.cut { width: 2px; height: 14px; background: var(--margin-red); }
+  .legend-swatch.stale { background: repeating-linear-gradient(45deg, var(--carbon-raised) 0 3px, var(--margin-red) 3px 4px); }
+
+  /* ── SECTION ── */
+  .section { padding: 84px 0; }
+  .section.tight { padding: 60px 0; }
+  .section-rule { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; }
+  .section-rule .label { font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--margin-red); }
+  .section-rule .line { flex: 1; height: 1px; background: var(--mist); }
+  .section-rule .ord { font-family: var(--font-proof); font-size: 11px; color: var(--graphite-muted); }
+  .section-title { font-size: clamp(30px, 4.2vw, 52px); font-weight: 700; line-height: 1.05; letter-spacing: -0.025em; max-width: 18ch; margin-bottom: 22px; }
+  .section-lede { font-size: clamp(15px, 1.4vw, 18px); color: var(--graphite); max-width: 62ch; line-height: 1.55; margin-bottom: 44px; }
+  .section-lede strong { color: var(--carbon); font-weight: 600; }
+
+  /* ── 3-UP ── */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
+  .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  @media (max-width: 820px) { .grid-4 { grid-template-columns: 1fr; } }
+  .block { background: var(--paper); border: 1px solid var(--mist); border-radius: var(--radius-card); padding: 32px 28px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .block::before { content: ''; position: absolute; left: 0; top: 28px; bottom: 28px; width: 3px; background: var(--margin-red); border-radius: 2px; }
+  .block.blue::before { background: var(--signal-blue); }
+  .block.green::before { background: var(--cutter-green); }
+  .block.amber::before { background: var(--cue-amber); }
+  .block-num { font-family: var(--font-proof); font-size: 10.5px; color: var(--graphite-muted); letter-spacing: 0.14em; text-transform: uppercase; }
+  .block-num .accent { color: var(--margin-red); }
+  .block-title { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 2px; }
+  .block-body { font-size: 14.5px; line-height: 1.6; color: var(--graphite); }
+  .block-body strong { color: var(--carbon); font-weight: 600; }
+
+  /* ── WHAT IT DOES ── */
+  .does-pregenerated { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 44px; }
+  @media (max-width: 720px) { .does-pregenerated { grid-template-columns: 1fr; } }
+  .pg-card { background: var(--paper); border: 1px solid var(--mist); border-radius: var(--radius-card); padding: 24px 26px; }
+  .pg-card .k {
+    font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 9px;
   }
+  .pg-card .k .ico { width: 8px; height: 8px; border-radius: 2px; }
+  .pg-card.preserved .k { color: var(--cutter-green); }
+  .pg-card.preserved .k .ico { background: var(--cutter-green); }
+  .pg-card.generated .k { color: var(--signal-blue); }
+  .pg-card.generated .k .ico { background: var(--signal-blue); }
+  .pg-card .v { font-size: 15px; line-height: 1.6; color: var(--graphite); }
+  .pg-card .v strong { color: var(--carbon); font-weight: 600; }
 
-  /* ── Tagline ── */
-  .tagline {
-    font-family: var(--cp-font-proof);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    color: var(--cp-color-graphite);
-    margin-bottom: 3rem;
-    line-height: 1.6;
-  }
+  .roundtrip { background: var(--paper); border: 1px solid var(--mist); border-radius: var(--radius-tile); padding: 40px 44px; display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px) { .roundtrip { grid-template-columns: 1fr; padding: 32px 28px; } }
+  .rt-left { display: flex; flex-direction: column; gap: 16px; }
+  .rt-eyebrow { font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--margin-red); }
+  .rt-title { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  .rt-body { font-size: 14.5px; line-height: 1.6; color: var(--graphite); }
+  .rt-flow { display: grid; grid-template-columns: 1fr 100px 1fr; gap: 0; background: var(--bone); border-radius: 14px; padding: 18px; border: 1px solid var(--mist); }
+  @media (max-width: 540px) { .rt-flow { grid-template-columns: 1fr; gap: 12px; } }
+  .rt-node { background: var(--carbon); color: var(--paper); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+  .rt-node .head { font-family: var(--font-proof); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--stone); }
+  .rt-node .name { font-size: 15px; font-weight: 700; color: var(--paper); line-height: 1.25; }
+  .rt-node .ver { font-family: var(--font-proof); font-size: 10px; color: var(--cutter-green); margin-top: 2px; }
+  .rt-arrows { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--margin-red); font-family: var(--font-proof); font-size: 10px; text-align: center; }
+  .rt-arrows .a { font-size: 22px; font-weight: 700; line-height: 0.5; }
+  .rt-rules { margin-top: 18px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  @media (max-width: 540px) { .rt-rules { grid-template-columns: repeat(2, 1fr); } }
+  .rt-rule { background: var(--warm-white); border: 1px solid var(--mist); border-radius: 10px; padding: 10px 12px; }
+  .rt-rule .k { font-family: var(--font-proof); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--graphite-muted); margin-bottom: 3px; }
+  .rt-rule .v { font-size: 12px; font-weight: 600; color: var(--carbon); line-height: 1.2; }
+  .rt-rule.amber .k { color: var(--cue-amber); }
+  .rt-rule.green .k { color: var(--cutter-green); }
+  .rt-rule.blue .k { color: var(--signal-blue); }
+  .rt-rule.red .k { color: var(--margin-red); }
+  .rt-rule.stone .k { color: var(--graphite); }
 
-  /* ── Description ── */
-  .description {
-    font-size: 1.125rem;
-    line-height: 1.7;
-    color: var(--cp-color-graphite);
-    margin-bottom: 1.75rem;
-    max-width: 480px;
-  }
+  /* ── DASHBOARD ── */
+  .dash-section { background: var(--carbon-soft); }
+  .dash-section .section-rule .line { background: var(--carbon-line); }
+  .dash-section .section-rule .ord { color: var(--stone); }
+  .dash-section .section-title { color: var(--paper); }
+  .dash-layout { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 44px; align-items: center; }
+  @media (max-width: 940px) { .dash-layout { grid-template-columns: 1fr; gap: 32px; } }
+  .dash-points { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .dash-points li { display: flex; gap: 16px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--carbon-line); }
+  .dash-points li:last-child { border-bottom: none; }
+  .dash-points .pk { font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--margin-red); width: 84px; flex-shrink: 0; padding-top: 2px; }
+  .dash-points .pv { font-size: 15px; color: var(--stone); line-height: 1.5; }
+  .dash-points .pv strong { color: var(--paper); font-weight: 600; }
 
-  .description strong {
-    color: var(--cp-color-carbon);
-    font-weight: 600;
-  }
+  .dash-board { background: var(--carbon); border: 1px solid var(--carbon-line); border-radius: var(--radius-tile); overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.35); }
+  .dash-bar { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--carbon-line); }
+  .dash-bar .lights { display: flex; gap: 6px; }
+  .dash-bar .lights i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .dash-bar .title { font-family: var(--font-proof); font-size: 11px; color: var(--stone); letter-spacing: 0.08em; }
+  .dash-bar .ver { margin-left: auto; font-family: var(--font-proof); font-size: 10.5px; color: var(--cutter-green); }
+  .dash-bar .ver::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--cutter-green); margin-right: 6px; vertical-align: 1px; }
+  .dash-canon { padding: 16px 20px; border-bottom: 1px solid var(--carbon-line); }
+  .dash-canon-label { font-family: var(--font-proof); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite-muted); margin-bottom: 10px; }
+  .dash-canon-tl { position: relative; display: grid; grid-template-columns: repeat(24, 1fr); gap: 4px; }
+  .dash-canon-tl .seg { height: 16px; border-radius: 3px; background: var(--carbon-raised); }
+  .dash-canon-tl .seg.a { background: var(--stone); }
+  .dash-canon-tl .cut { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--margin-red); border-radius: 1px; }
+  .dash-rows { display: flex; flex-direction: column; }
+  .dash-row { display: grid; grid-template-columns: 130px 1fr 92px; gap: 14px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--carbon-line); }
+  .dash-row:last-child { border-bottom: none; }
+  .dash-dept { display: flex; align-items: center; gap: 9px; }
+  .dash-dept .swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .dash-dept .nm { font-size: 13px; color: var(--paper); font-weight: 500; }
+  .dash-dept .who { display: block; font-family: var(--font-proof); font-size: 9.5px; color: var(--graphite-muted); margin-top: 1px; }
+  .dash-mini { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
+  .dash-mini span { height: 10px; border-radius: 2px; background: var(--carbon-raised); }
+  .dash-pill { font-family: var(--font-proof); font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; padding: 4px 0; border-radius: 6px; border: 1px solid; }
+  .dash-pill.served { color: var(--cutter-green); border-color: rgba(95,135,107,0.4); background: rgba(95,135,107,0.12); }
+  .dash-pill.working { color: var(--signal-blue); border-color: rgba(96,117,203,0.4); background: rgba(96,117,203,0.12); }
+  .dash-pill.stale { color: var(--margin-red); border-color: rgba(179,79,60,0.5); background: rgba(179,79,60,0.12); }
+  .dash-pill.canonical { color: #cfe0d5; border-color: var(--cutter-green); background: rgba(95,135,107,0.28); }
+  .dash-pill.waiting { color: var(--stone); border-color: rgba(167,156,144,0.45); background: rgba(167,156,144,0.1); }
+  .dash-pill.notserved { color: var(--graphite-muted); border-color: rgba(142,131,120,0.45); background: rgba(142,131,120,0.1); }
+  .dash-pill.review { color: var(--cue-amber); border-color: rgba(179,139,80,0.5); background: rgba(179,139,80,0.12); }
+  .dash-row { grid-template-columns: 178px 1fr 92px; }
 
-  /* ── Kicker (pain line above email form) ── */
-  .kicker {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--cp-color-carbon);
-    font-weight: 500;
-    margin-bottom: 2.5rem;
-    max-width: 480px;
-  }
+  /* ── WHO (prose) ── */
+  .who-prose { font-size: clamp(16px, 1.6vw, 20px); line-height: 1.55; color: var(--graphite); max-width: 64ch; }
+  .who-prose strong { color: var(--carbon); font-weight: 600; }
+  .who-prose .q { color: var(--carbon); font-weight: 600; }
+  .who-prose p + p { margin-top: 20px; }
 
-  /* ── Email form ── */
-  .email-form {
-    width: 100%;
-    max-width: 440px;
-    margin-bottom: 1rem;
-  }
+  /* ── AUDIENCE ── */
+  .audience { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { font-family: var(--font-brand); font-size: 13.5px; font-weight: 500; color: var(--carbon); background: var(--paper); border: 1px solid var(--mist); border-radius: 999px; padding: 9px 16px; display: inline-flex; align-items: center; gap: 8px; }
+  .chip .tick { width: 6px; height: 6px; border-radius: 50%; background: var(--margin-red); }
+  .chip.alt .tick { background: var(--signal-blue); }
+  .chip.alt2 .tick { background: var(--cutter-green); }
+  .chip.alt3 .tick { background: var(--cue-amber); }
 
-  .form-row {
-    display: flex;
-    gap: 0.625rem;
-    width: 100%;
-  }
+  /* ── STATUS + ASK ── */
+  .status-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: stretch; }
+  @media (max-width: 880px) { .status-row { grid-template-columns: 1fr; } }
+  .status-card { background: var(--paper); border: 1px solid var(--mist); border-radius: var(--radius-tile); padding: 36px 38px; display: flex; flex-direction: column; gap: 14px; }
+  .status-card .eyebrow { font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--graphite-muted); }
+  .status-card h3 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  .status-card p { font-size: 15px; line-height: 1.6; color: var(--graphite); }
+  .ask-card { background: var(--carbon); color: var(--paper); border-radius: var(--radius-tile); padding: 36px 40px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
+  .ask-card::before { content: ''; position: absolute; right: -100px; top: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(179,79,60,0.18), transparent 70%); pointer-events: none; }
+  .ask-card .eyebrow { font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--margin-red); }
+  .ask-card h3 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; color: var(--paper); }
+  .ask-card p { font-size: 15px; line-height: 1.6; color: var(--stone); }
+  .ask-card p strong { color: var(--paper); font-weight: 600; }
+  .ask-tags { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 18px; border-top: 1px solid var(--carbon-line); }
+  .ask-tags span { font-family: var(--font-proof); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--stone); border: 1px solid var(--carbon-line); padding: 5px 10px; border-radius: 6px; }
+  .ask-fifteen { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--paper); }
+  .ask-fifteen .d { width: 8px; height: 8px; border-radius: 50%; background: var(--margin-red); }
 
-  .email-input {
-    flex: 1;
-    font-family: var(--cp-font-brand);
-    font-size: 0.9375rem;
-    padding: 0.875rem 1.125rem;
-    border: 1.5px solid var(--cp-color-mist);
-    border-radius: var(--cp-radius-chip);
-    background: var(--cp-color-warm-white);
-    color: var(--cp-color-carbon);
-    outline: none;
-    transition: border-color var(--cp-duration-state) var(--cp-ease-standard),
-                box-shadow var(--cp-duration-state) var(--cp-ease-standard);
-  }
+  /* ── CONTACT / FORM ── */
+  .contact-section { padding: 84px 0; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; background: var(--paper); border: 1px solid var(--mist); border-radius: var(--radius-tile); padding: 56px 56px; }
+  @media (max-width: 880px) { .contact-grid { grid-template-columns: 1fr; padding: 40px 32px; gap: 36px; } }
+  .contact-copy h2 { font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; margin-bottom: 18px; }
+  .contact-copy p { font-size: 15.5px; line-height: 1.6; color: var(--graphite); }
+  .contact-copy .mail { font-family: var(--font-proof); font-size: 13px; color: var(--margin-red); text-decoration: none; margin-top: 18px; display: inline-block; }
 
-  .email-input::placeholder {
-    color: var(--cp-color-stone);
-  }
+  .form-card { background: var(--carbon); border-radius: 18px; padding: 32px; }
+  .form-label { font-family: var(--font-proof); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .form-label .marker { color: var(--margin-red); }
+  .form-row { display: flex; flex-direction: column; gap: 12px; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-family: var(--font-proof); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--graphite-muted); }
+  .input { width: 100%; background: var(--carbon-soft); border: 1px solid var(--carbon-line); border-radius: 10px; padding: 12px 14px; color: var(--paper); font-family: var(--font-brand); font-size: 14px; transition: border-color 160ms, background 160ms; }
+  .input::placeholder { color: var(--graphite-muted); }
+  .input:focus { outline: none; border-color: var(--margin-red); background: var(--carbon-raised); }
+  select.input { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23A79C90' d='M6 8L0 0h12z'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  .form-submit { background: var(--margin-red); color: var(--paper); font-family: var(--font-brand); font-size: 14px; font-weight: 600; border: none; padding: 14px 20px; border-radius: 10px; cursor: pointer; margin-top: 4px; transition: background 160ms, transform 160ms; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .form-submit:hover { background: #c75948; transform: translateY(-1px); }
+  .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .form-fine { font-family: var(--font-proof); font-size: 10px; color: var(--graphite-muted); margin-top: 14px; line-height: 1.5; letter-spacing: 0.04em; }
+  .form-success { background: rgba(95, 135, 107, 0.15); border: 1px solid var(--cutter-green); border-radius: 18px; padding: 32px; color: var(--paper); display: none; }
+  .form-success.show { display: block; }
+  .form-success .icon { color: var(--cutter-green); font-family: var(--font-proof); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
+  .form-success p { font-size: 15px; line-height: 1.55; color: var(--stone); }
+  .form-success p strong { color: var(--paper); font-weight: 600; }
 
-  .email-input:focus {
-    border-color: var(--cp-color-graphite);
-    box-shadow: 0 0 0 3px rgba(100, 91, 82, 0.1);
-  }
-
-  .submit-btn {
-    font-family: var(--cp-font-brand);
-    font-weight: 600;
-    font-size: 0.9375rem;
-    padding: 0.875rem 1.5rem;
-    border: none;
-    border-radius: var(--cp-radius-chip);
-    background: var(--cp-color-carbon);
-    color: var(--cp-color-bone);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background var(--cp-duration-state) var(--cp-ease-standard),
-                transform var(--cp-duration-micro) var(--cp-ease-standard);
-  }
-
-  .submit-btn:hover {
-    background: var(--cp-color-carbon-soft);
-  }
-
-  .submit-btn:active {
-    transform: scale(0.97);
-  }
-
-  .form-note {
-    font-family: var(--cp-font-proof);
-    font-size: 0.6875rem;
-    color: var(--cp-color-stone);
-    margin-top: 0.75rem;
-    letter-spacing: 0.02em;
-  }
-
-  /* ── Success state ── */
-  .success-message {
-    display: none;
-    font-size: 1rem;
-    color: var(--cp-color-cutter-green);
-    font-weight: 500;
-    padding: 1rem 0;
-  }
-
-  .email-form.submitted .form-row,
-  .email-form.submitted .form-note {
-    display: none;
-  }
-
-  .email-form.submitted .success-message {
-    display: block;
-  }
-
-  /* ── Features strip ── */
-  .features {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-top: 3.5rem;
-    padding-top: 2.5rem;
-    border-top: 1px solid var(--cp-color-mist);
-    max-width: 520px;
-    width: 100%;
-  }
-
-  .feature {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    flex: 0 0 auto;
-  }
-
-  .feature-label {
-    font-family: var(--cp-font-proof);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    color: var(--cp-color-graphite-muted);
-    text-transform: uppercase;
-  }
-
-  .feature-value {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--cp-color-graphite);
-  }
-
-  /* ── Footer ── */
-  footer {
-    text-align: left;
-    padding: 2rem clamp(1.5rem, 8vw, 10rem);
-    font-family: var(--cp-font-proof);
-    font-size: 0.6875rem;
-    color: var(--cp-color-stone);
-    letter-spacing: 0.02em;
-  }
-
-  /* ── Decorative vertical lines (brand motif) ── */
-  .lines-left, .lines-right {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    pointer-events: none;
-  }
-
-  .lines-left {
-    left: clamp(24px, 5vw, 80px);
-    background: var(--cp-color-mist);
-    opacity: 0.5;
-  }
-
-  .lines-right {
-    right: clamp(24px, 5vw, 80px);
-    background: var(--cp-color-mist);
-    opacity: 0.5;
-  }
-
-  .margin-line {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: clamp(32px, 5.5vw, 88px);
-    width: 1px;
-    background: var(--cp-color-margin-red);
-    opacity: 0.18;
-    pointer-events: none;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 520px) {
-    .wordmark {
-      font-size: 1.75rem;
-    }
-
-    .description {
-      font-size: 1rem;
-    }
-
-    .form-row {
-      flex-direction: column;
-    }
-
-    .features {
-      gap: 1.5rem;
-    }
-
-    .lines-left, .lines-right, .margin-line {
-      display: none;
-    }
-  }
+  /* ── FOOTER ── */
+  .footer { background: var(--carbon); color: var(--paper); padding: 76px 0 40px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 56px; }
+  @media (max-width: 720px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } .footer-brand { grid-column: 1 / -1; } }
+  .footer-brand { display: flex; flex-direction: column; gap: 16px; max-width: 320px; }
+  .footer-brand .mark { display: flex; align-items: center; gap: 12px; }
+  .footer-brand .mark svg { width: 36px; height: 36px; border-radius: 22.37%; }
+  .footer-brand .mark .cp-logotype { font-size: 22px; color: var(--paper); }
+  .footer-brand .tag { font-size: 13px; color: var(--stone); line-height: 1.5; }
+  .footer-col h4 { font-family: var(--font-proof); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--graphite-muted); margin-bottom: 16px; font-weight: 400; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col a { color: var(--stone); text-decoration: none; font-size: 13.5px; transition: color 160ms; }
+  .footer-col a:hover { color: var(--paper); }
+  .footer-bottom { border-top: 1px solid var(--carbon-line); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-family: var(--font-proof); font-size: 10.5px; color: var(--graphite-muted); letter-spacing: 0.06em; }
 </style>
 </head>
 <body>
 
-<!-- Brand motif: vertical lines -->
-<div class="lines-left"></div>
-<div class="margin-line"></div>
-<div class="lines-right"></div>
+<div class="topbanner"><span class="dot"></span> Design partners open</div>
 
-<main class="page">
-  <div class="content">
+<!-- ═════════════ NAV ═════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-brand">
+      <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect fill="#171514" width="1024" height="1024" rx="229" ry="229"/>
+        <rect fill="#3B342E" height="300" rx="68" ry="68" width="500" x="322" y="392"/>
+        <rect fill="#A79C90" height="300" rx="68" ry="68" width="500" x="262" y="352"/>
+        <rect fill="#F7F1E8" height="300" rx="68" ry="68" width="500" x="202" y="312"/>
+        <rect fill="#B34F3C" height="420" rx="8" ry="8" width="16" x="504" y="272"/>
+      </svg>
+      <span class="cp-logotype">Cutpoin<span class="t-wrap">t</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problem">The problem</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#dashboard">The dashboard</a></li>
+      <li><a href="#why">Why it matters</a></li>
+      <li><a href="#who">Who it's for</a></li>
+      <li><a href="#status">Status</a></li>
+    </ul>
+    <a href="#partner" class="nav-cta">Become a design partner</a>
+  </div>
+</nav>
 
-    <!-- Wordmark (v1 logotype: red line through the "t") -->
-    <h1 class="wordmark">Cutpoin<span class="t-wrap">t</span></h1>
+<!-- ═════════════ HERO ═════════════ -->
+<header class="hero" id="top">
+  <div class="container">
+    <div class="hero-lockup">
+      <svg class="hero-mark" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect fill="#171514" width="1024" height="1024" rx="229" ry="229"/>
+        <rect fill="#3B342E" height="300" rx="68" ry="68" width="500" x="322" y="392"/>
+        <rect fill="#A79C90" height="300" rx="68" ry="68" width="500" x="262" y="352"/>
+        <rect fill="#F7F1E8" height="300" rx="68" ry="68" width="500" x="202" y="312"/>
+        <rect fill="#B34F3C" height="420" rx="8" ry="8" width="16" x="504" y="272"/>
+      </svg>
+      <span class="cp-logotype hero-wordmark">Cutpoin<span class="t-wrap">t</span></span>
+    </div>
+    <h1>Software handles the turnover. <span class="accent">You handle the storytelling.</span></h1>
+    <p class="hero-lede">Version control for post-production. Automating Conforms, platform migration and round-trips, with fine grained tracking in a web-based dashboard. Every department works from the same cut, in parallel. </p>
+    <div class="cta-row">
+      <a href="#partner" class="btn btn-primary">Become a design partner →</a>
+      <a href="#how" class="btn btn-ghost">See how it works</a>
+    </div>
+  </div>
+</header>
 
-    <!-- Tagline -->
-    <p class="tagline">A story-driven video editor.<br>Every decision shown, every alternative ready.</p>
-
-    <!-- Description -->
-    <p class="description">
-      <strong>Built for any kind of video editor. AI-driven, voice-native.</strong>
-      Give it your script and footage. Talk to it.
-      See every editorial decision: the selects it chose,
-      the alternatives it considered, and why.
-      Then take the timeline into Premiere, Avid or any NLE for finishing.
-    </p>
-
-    <!-- Kicker / pain line -->
-    <p class="kicker">The first cut is the slowest part. Cutpoint gets you to a strong first cut while you watch the work.</p>
-
-    <!-- Email signup -->
-    <form class="email-form" id="signupForm" onsubmit="handleSignup(event)">
-      <div class="form-row">
-        <input
-          type="email"
-          class="email-input"
-          placeholder="Your email"
-          required
-          aria-label="Email address"
-          id="emailInput"
-        >
-        <button type="submit" class="submit-btn">Get early access</button>
+<!-- ═════════════ HERO VISUAL ═════════════ -->
+<section class="diagram-section">
+  <div class="container">
+    <div class="diagram">
+      <div class="diagram-head">
+        <div class="diagram-title">Project graph <span class="muted">/ v07 → v08 propagation</span></div>
+        <div class="diagram-trace"><span class="live">live</span> &nbsp;·&nbsp; cut moved at 01:24:18:02 &nbsp;·&nbsp; 8 downstream timelines affected</div>
       </div>
-      <p class="form-note">We'll reach out when we're recruiting design partners. About once a month, no spam.</p>
-      <p class="success-message">You're on the list. We'll be in touch.</p>
-    </form>
+      <div class="diagram-tracks">
+        <div class="track-list">
+          <div>picture</div>
+          <div class="changed">sound · fx</div>
+          <div>sound · dialogue</div>
+          <div class="changed">vfx</div>
+          <div class="changed">music</div>
+          <div>colour</div>
+          <div class="changed">captions</div>
+          <div class="changed">M&amp;E</div>
+          <div class="changed">localisation</div>
+        </div>
+        <div style="position: relative;">
+          <div class="timeline">
+            <!-- picture -->
+            <div class="tl-clip stone" style="grid-column: 1 / span 6; grid-row: 1;"></div>
+            <div class="tl-clip stone" style="grid-column: 7 / span 4; grid-row: 1;"></div>
+            <div class="tl-clip stone" style="grid-column: 11 / span 7; grid-row: 1;"></div>
+            <div class="tl-clip stone" style="grid-column: 18 / span 7; grid-row: 1;"></div>
+            <!-- sound fx (changed) -->
+            <div class="tl-clip amber" style="grid-column: 2 / span 3; grid-row: 2;"></div>
+            <div class="tl-clip amber" style="grid-column: 8 / span 3; grid-row: 2;"></div>
+            <div class="tl-clip stale" style="grid-column: 12 / span 4; grid-row: 2;"></div>
+            <div class="tl-clip amber" style="grid-column: 19 / span 4; grid-row: 2;"></div>
+            <!-- dialogue (preserved) -->
+            <div class="tl-clip green" style="grid-column: 1 / span 9; grid-row: 3;"></div>
+            <div class="tl-clip green" style="grid-column: 11 / span 6; grid-row: 3;"></div>
+            <div class="tl-clip green" style="grid-column: 18 / span 7; grid-row: 3;"></div>
+            <!-- vfx (changed) -->
+            <div class="tl-clip blue" style="grid-column: 3 / span 4; grid-row: 4;"></div>
+            <div class="tl-clip stale" style="grid-column: 12 / span 3; grid-row: 4;"></div>
+            <div class="tl-clip blue" style="grid-column: 20 / span 3; grid-row: 4;"></div>
+            <!-- music (changed) -->
+            <div class="tl-clip" style="grid-column: 1 / span 5; grid-row: 5; background: #8A93C0;"></div>
+            <div class="tl-clip stale" style="grid-column: 10 / span 4; grid-row: 5;"></div>
+            <div class="tl-clip" style="grid-column: 16 / span 8; grid-row: 5; background: #8A93C0;"></div>
+            <!-- colour (pending) -->
+            <div class="tl-clip muted" style="grid-column: 1 / span 24; grid-row: 6;"></div>
+            <!-- captions (changed) -->
+            <div class="tl-clip" style="grid-column: 1 / span 10; grid-row: 7; background: var(--stone);"></div>
+            <div class="tl-clip stale" style="grid-column: 12 / span 5; grid-row: 7;"></div>
+            <div class="tl-clip" style="grid-column: 18 / span 7; grid-row: 7; background: var(--stone);"></div>
+            <!-- M&E (changed) -->
+            <div class="tl-clip" style="grid-column: 2 / span 8; grid-row: 8; background: #7E9C86;"></div>
+            <div class="tl-clip stale" style="grid-column: 12 / span 4; grid-row: 8;"></div>
+            <div class="tl-clip" style="grid-column: 18 / span 6; grid-row: 8; background: #7E9C86;"></div>
+            <!-- localisation (changed) -->
+            <div class="tl-clip muted" style="grid-column: 1 / span 11; grid-row: 9;"></div>
+            <div class="tl-clip stale" style="grid-column: 12 / span 6; grid-row: 9;"></div>
+            <div class="tl-clip muted" style="grid-column: 19 / span 6; grid-row: 9;"></div>
+            <!-- the cut -->
+            <div class="tl-cut" style="left: calc(11/24 * 100% - 1px);"></div>
+          </div>
+          <div class="ruler">
+            <span>00:00</span>
+            <span>00:30</span>
+            <span style="color: var(--margin-red);">▼ cut moved</span>
+            <span>01:30</span>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch cut"></span>Cut point</div>
+        <div class="legend-item"><span class="legend-swatch stale"></span>Stale</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: var(--cutter-green);"></span>Preserved</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: var(--signal-blue);"></span>VFX shot</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: var(--cue-amber);"></span>Sound cue</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: var(--stone);"></span>Caption timing</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: #7E9C86;"></span>M&amp;E split</div>
+        <div class="legend-item"><span class="legend-swatch" style="background: #8A93C0;"></span>Localisation offset</div>
+        <div class="legend-item" style="margin-left: auto; color: var(--paper);">v07 → <span style="color: var(--cutter-green);">v08</span> · 42 changes packaged automatically</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- Feature strip -->
-    <div class="features">
-      <div class="feature">
-        <span class="feature-label">Input</span>
-        <span class="feature-value">Script + footage</span>
+<!-- ═════════════ 01 PROBLEM ═════════════ -->
+<section class="section" id="problem">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">The problem</span><span class="line"></span><span class="ord">01 / 05</span>
+    </div>
+    <h2 class="section-title">Skilled people spend their days reconciling versions.</h2>
+    <p class="section-lede">A feature is one timeline moving through the loop. A season is the loop running on every episode at once, each against a delivery date that won't move.</p>
+    <div class="grid-3">
+      <div class="block">
+        <div class="block-num"><span class="accent">▼</span> The loop</div>
+        <div class="block-title">Fine cut → notes → turnover → change → reconform.</div>
+        <div class="block-body">In film and episodic, downstream work starts before picture is finally locked. Sound, VFX, music, colour, captions, M&amp;E, localisation, finishing, and delivery all move in parallel while cuts keep changing — across reels, episodes, scenes, tracks, and versions. <strong>One trim can make yesterday's mix stale.</strong></div>
       </div>
-      <div class="feature">
-        <span class="feature-label">Interaction</span>
-        <span class="feature-value">Voice-native</span>
+      <div class="block blue">
+        <div class="block-num"><span class="accent">▼</span> The questions</div>
+        <div class="block-title">The same questions, every turnover.</div>
+        <div class="block-body">
+          What changed?<br>
+          Which version is canonical?<br>
+          What work is preserved?<br>
+          What needs to move?<br>
+          Who is stale?<br>
+          Who has been served?<br>
+          <em>What deadline does this affect?</em>
+        </div>
       </div>
-      <div class="feature">
-        <span class="feature-label">Output</span>
-        <span class="feature-value">Any NLE project</span>
+      <div class="block amber">
+        <div class="block-num"><span class="accent">▼</span> The cost</div>
+        <div class="block-title">Today, the canonical version lives in people and notebooks.</div>
+        <div class="block-body">EDLs, AAFs, bins, change notes, Slack, Frame.io, ShotGrid, Airtable, email threads, sticky notes. Skilled teams spend hours reconstructing where the work should land — <strong>not once, but across every note cycle, every turnover, every reel, every episode, every version.</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 03 DASHBOARD ═════════════ -->
+<section class="section dash-section" id="dashboard">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">The dashboard</span><span class="line"></span><span class="ord">02 / 05</span>
+    </div>
+    <h2 class="section-title">One live view of the whole post.</h2>
+    <p class="section-lede" style="color: var(--stone);">A post board for every moving cut, reel, episode, department, and deliverable. A source of truth.</p>
+    <div class="dash-layout">
+      <ul class="dash-points">
+        <li><span class="pk">Timeline</span><span class="pv"><strong>The canonical cut</strong>, plus every downstream timeline derived from it.</span></li>
+        <li><span class="pk">Status</span><span class="pv">Who is working, waiting, served, or <strong>stale.</strong></span></li>
+        <li><span class="pk">Served</span><span class="pv">Which teams have received the latest change package.</span></li>
+        <li><span class="pk">Preserved</span><span class="pv">What survives the move and <strong>stays exactly where it belongs.</strong></span></li>
+        <li><span class="pk">Risk</span><span class="pv">What the change touches <strong>before it reaches the next room.</strong></span></li>
+      </ul>
+
+      <div class="dash-board">
+        <div class="dash-bar">
+          <div class="lights"><i style="background:#B34F3C"></i><i style="background:#B38B50"></i><i style="background:#5F876B"></i></div>
+          <div class="title">cutpoint · PROJECT_2601 / post board</div>
+          <div class="ver">v08 canonical</div>
+        </div>
+        <div class="dash-canon">
+          <div class="dash-canon-label">Canonical timeline · v08</div>
+          <div class="dash-canon-tl">
+            <div class="seg a" style="grid-column: 1 / span 5;"></div>
+            <div class="seg" style="grid-column: 6 / span 4;"></div>
+            <div class="seg a" style="grid-column: 10 / span 6;"></div>
+            <div class="seg" style="grid-column: 16 / span 4;"></div>
+            <div class="seg a" style="grid-column: 20 / span 5;"></div>
+            <div class="cut" style="left: calc(11/24 * 100% - 1px);"></div>
+          </div>
+        </div>
+        <div class="dash-rows">
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--stone)"></span><span><span class="nm">Offline editorial</span><span class="who">Resolve / Premiere / Avid</span></span></div>
+            <div class="dash-mini"><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span></div>
+            <div class="dash-pill canonical">canonical</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--cue-amber)"></span><span><span class="nm">Sound FX</span><span class="who">Pro Tools</span></span></div>
+            <div class="dash-mini"><span style="background:var(--cue-amber)"></span><span style="background:var(--cue-amber)"></span><span></span><span style="background:var(--cue-amber)"></span><span></span><span style="background:var(--margin-red)"></span><span style="background:var(--margin-red)"></span><span></span><span style="background:var(--cue-amber)"></span><span></span><span style="background:var(--cue-amber)"></span><span></span></div>
+            <div class="dash-pill stale">stale</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--cutter-green)"></span><span><span class="nm">Dialogue</span><span class="who">Pro Tools</span></span></div>
+            <div class="dash-mini"><span style="background:var(--cutter-green)"></span><span style="background:var(--cutter-green)"></span><span style="background:var(--cutter-green)"></span><span></span><span style="background:var(--cutter-green)"></span><span style="background:var(--cutter-green)"></span><span></span><span style="background:var(--cutter-green)"></span><span style="background:var(--cutter-green)"></span><span></span><span style="background:var(--cutter-green)"></span><span style="background:var(--cutter-green)"></span></div>
+            <div class="dash-pill served">served</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--signal-blue)"></span><span><span class="nm">VFX</span><span class="who">14 shots affected</span></span></div>
+            <div class="dash-mini"><span></span><span style="background:var(--signal-blue)"></span><span style="background:var(--signal-blue)"></span><span></span><span></span><span style="background:var(--margin-red)"></span><span></span><span></span><span style="background:var(--signal-blue)"></span><span style="background:var(--signal-blue)"></span><span></span><span></span></div>
+            <div class="dash-pill working">working</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:#8A93C0"></span><span><span class="nm">Music</span><span class="who">3 cues shifted</span></span></div>
+            <div class="dash-mini"><span style="background:#8A93C0"></span><span style="background:#8A93C0"></span><span></span><span></span><span style="background:#8A93C0"></span><span style="background:#8A93C0"></span><span></span><span style="background:#8A93C0"></span><span></span><span></span><span style="background:#8A93C0"></span><span style="background:#8A93C0"></span></div>
+            <div class="dash-pill served">served</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--graphite-muted)"></span><span><span class="nm">Colour</span><span class="who">Pending turnover</span></span></div>
+            <div class="dash-mini"><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span></div>
+            <div class="dash-pill waiting">waiting</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--stone)"></span><span><span class="nm">Captions</span><span class="who">Re-time needed</span></span></div>
+            <div class="dash-mini"><span style="background:var(--stone)"></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--margin-red)"></span><span style="background:var(--margin-red)"></span><span></span><span style="background:var(--stone)"></span><span></span><span style="background:var(--stone)"></span><span></span></div>
+            <div class="dash-pill stale">stale</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:#7E9C86"></span><span><span class="nm">M&amp;E</span><span class="who">Split prep affected</span></span></div>
+            <div class="dash-mini"><span style="background:#7E9C86"></span><span style="background:#7E9C86"></span><span></span><span style="background:#7E9C86"></span><span></span><span style="background:var(--margin-red)"></span><span></span><span></span><span style="background:#7E9C86"></span><span style="background:#7E9C86"></span><span></span><span></span></div>
+            <div class="dash-pill working">working</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:#8A93C0"></span><span><span class="nm">Localisation</span><span class="who">Subtitles + dubs waiting</span></span></div>
+            <div class="dash-mini"><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--margin-red)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span></div>
+            <div class="dash-pill notserved">not served</div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-dept"><span class="swatch" style="background:var(--margin-red)"></span><span><span class="nm">Delivery</span><span class="who">Next milestone at risk</span></span></div>
+            <div class="dash-mini"><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--cue-amber)"></span><span style="background:var(--cue-amber)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span><span style="background:var(--carbon-raised)"></span></div>
+            <div class="dash-pill review">review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 02 WHAT IT DOES ═════════════ -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">What Cutpoint does</span><span class="line"></span><span class="ord">03 / 05</span>
+    </div>
+    <h2 class="section-title">Every change carries itself to every room.</h2>
+    <p class="section-lede">Cutpoint analyses each new cut against the previous version and produces a precise, traceable change package for every department downstream.</p>
+
+    <div class="does-pregenerated">
+      <div class="pg-card preserved">
+        <div class="k"><span class="ico"></span> Preserved</div>
+        <div class="v">Effects, split screens, frame resizes, dissolves, pans, dialogue edits, room tone, ambience beds, music anchors, caption timings, and valid M&amp;E work — <strong>the work already done stays done.</strong></div>
+      </div>
+      <div class="pg-card generated">
+        <div class="k"><span class="ico"></span> Prepared</div>
+        <div class="v">Slipped shots, fresh handles, VFX pulls, ADR pickups, music shifts, caption re-times, M&amp;E changes, localisation offsets, and suite-ready sessions — <strong>prepared from the cut change instead of rebuilt by hand.</strong></div>
+      </div>
+      <div class="pg-card preserved">
+        <div class="k"><span class="ico"></span> Served</div>
+        <div class="v">Offline to sound. Sound back to offline. VFX pulls to vendors. Captions to finishing. M&amp;E and localisation to delivery — <strong>every team gets the version that matters to them.</strong></div>
+      </div>
+      <div class="pg-card generated">
+        <div class="k"><span class="ico"></span> Traceable</div>
+        <div class="v">What changed. What was preserved. What was reworked. Who received it. Who is stale. Which deadline is exposed — <strong>every turnover leaves a map.</strong></div>
       </div>
     </div>
 
+    <div class="roundtrip">
+      <div class="rt-left">
+        <div class="rt-eyebrow">First integration · Offline ↔ Sound</div>
+        <div class="rt-title">Everything is preserved. Ingest the offline timeline. Analyze the change. Auto-deliver a suite-ready session.</div>
+        <div class="rt-body">An end to conforms: Hard effects, dialogue, room tone, ambience, music, and M&amp;E elements each follow their own deterministic rule — so the sound editor's work lands where the new cut needs it, not where the last version left it. </div>
+      </div>
+      <div>
+        <div class="rt-flow">
+          <div class="rt-node">
+            <div class="head">↑ ingest · offline</div>
+            <div class="name">Offline<br>(Resolve / Premiere / Avid)</div>
+            <div class="ver">v07 → v08 · diffed</div>
+          </div>
+          <div class="rt-arrows" aria-hidden="true">
+            <div class="a">→</div>
+            <div>change<br>package</div>
+            <div class="a">←</div>
+          </div>
+          <div class="rt-node">
+            <div class="head">↓ deliver · session</div>
+            <div class="name">Sound<br>(Pro Tools)</div>
+            <div class="ver">v08 · suite-ready</div>
+          </div>
+        </div>
+        <div class="rt-rules">
+          <div class="rt-rule amber"><div class="k">FX</div><div class="v">Hard sync</div></div>
+          <div class="rt-rule green"><div class="k">DLG</div><div class="v">Preserve</div></div>
+          <div class="rt-rule stone"><div class="k">TONE</div><div class="v">Extend</div></div>
+          <div class="rt-rule blue"><div class="k">AMB</div><div class="v">Stretch</div></div>
+          <div class="rt-rule red"><div class="k">MUSIC</div><div class="v">Anchor</div></div>
+          <div class="rt-rule green"><div class="k">M&amp;E</div><div class="v">Split / protect</div></div>
+        </div>
+      </div>
+    </div>
   </div>
-</main>
+</section>
 
-<footer>
-  Cutpoint &middot; 2026
+<!-- ═════════════ 04 WHY ═════════════ -->
+<section class="section" id="why">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">Why it matters</span><span class="line"></span><span class="ord">04 / 05</span>
+    </div>
+    <h2 class="section-title">Give post its capacity back.</h2>
+    <div class="grid-4">
+      <div class="block">
+        <div class="block-num"><span class="accent">◆</span> Creative time</div>
+        <div class="block-title">Skilled hours go to the work that moves the story.</div>
+        <div class="block-body">Reconforms, version chases, and manual change notes stop eating the day. Editors, supervisors, mixers, artists, and producers <strong>get more time for the decisions that actually shape the film or episode.</strong></div>
+      </div>
+      <div class="block blue">
+        <div class="block-num"><span class="accent">◆</span> Visibility</div>
+        <div class="block-title">Every department can see where the cut stands.</div>
+        <div class="block-body">The post team knows what is canonical, who is working from it, who has been served, what is stale, and where the risk is — across sound, VFX, colour, captions, M&amp;E, localisation, finishing, and delivery. <a href="#dashboard" style="color:var(--signal-blue);text-decoration:none;font-weight:600;">See the dashboard ↑</a></div>
+      </div>
+      <div class="block green">
+        <div class="block-num"><span class="accent">◆</span> Schedule</div>
+        <div class="block-title">Downstream can start earlier and stay current.</div>
+        <div class="block-body">Work can begin at fine cut without the usual penalty of losing the map every time the cut moves. <strong>Late changes become controlled changes, not budget shocks.</strong></div>
+      </div>
+      <div class="block amber">
+        <div class="block-num"><span class="accent">◆</span> Delivery</div>
+        <div class="block-title">The final mile stops being a guessing game.</div>
+        <div class="block-body">M&amp;E, captions, localisation, QC, marketing, and delivery all depend on knowing exactly which version they are touching. Cutpoint keeps those dependencies visible <strong>before a missed change becomes a missed deadline.</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ WHO ═════════════ -->
+<section class="section tight" id="who">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">Who it's for</span><span class="line"></span><span class="ord">·</span>
+    </div>
+    <h2 class="section-title">Built for the people who live the turnover.</h2>
+    <div class="who-prose">
+      <p>For post teams across <strong>film and episodic</strong>: supervisors, producers, editors, assistant editors, sound, VFX, colour, finishing, captions, M&amp;E, localisation, QC, delivery, facilities, and workflow teams.</p>
+      <p>Anyone who has had to ask: <span class="q">what changed, who's stale, what's preserved, and which version is canonical?</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 05 STATUS + ASK ═════════════ -->
+<section class="section" id="status">
+  <div class="container">
+    <div class="section-rule">
+      <span class="label">Where we are</span><span class="line"></span><span class="ord">05 / 05</span>
+    </div>
+    <div class="status-row" id="partner">
+      <div class="status-card">
+        <div class="eyebrow">Status · Early</div>
+        <h3>Founder-led, looking for real validation.</h3>
+        <p>Running internally on DaVinci Resolve and Pro Tools. Conversations underway with Adobe, Avid, and more. We are validating Cutpoint with people who live real turnovers: film, episodic, trailers, sound, VFX, colour, captions, M&amp;E, localisation, finishing, and delivery.</p>
+        <p>This is early. The goal is not to demo a fantasy workflow — it's to put Cutpoint against the messy one you already have.</p>
+      </div>
+      <div class="ask-card">
+        <div class="eyebrow">What we're looking for</div>
+        <h3>Design partners.</h3>
+        <p><strong>Post houses, productions, studios, facilities, and post teams to test Cutpoint against real turnover pain.</strong> Start with a mock project. Then a real one. Design partners get a standing line into the roadmap and a lifetime discount.</p>
+        <div class="ask-tags">
+          <span>Moving cuts</span>
+          <span>Reconforms</span>
+          <span>Offline-to-sound round-trips</span>
+          <span>VFX pulls</span>
+          <span>M&amp;E prep</span>
+          <span>Localisation</span>
+          <span>Version confusion</span>
+          <span>Delivery risk</span>
+        </div>
+        <div class="ask-fifteen"><span class="d"></span> Fifteen minutes of your time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ CONTACT ═════════════ -->
+<section class="contact-section">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-copy">
+        <h2>Show us where the turnover hurts.</h2>
+        <p>Tell us how your post runs and where the cut starts to drift from the work around it. Feature or series. Resolve, Premiere, Avid, Pro Tools. Sound, VFX, colour, captions, M&amp;E, localisation, finishing, delivery. We read every note.</p>
+        <a href="mailto:shir@cutpoint.studio" class="mail">shir@cutpoint.studio →</a>
+      </div>
+      <div>
+        <form class="form-card" id="signup-form" name="cutpoint-signup" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="cutpoint-signup">
+          <p class="hidden-field" style="display:none;"><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
+          <div class="form-label"><span class="marker">●</span> Join the list</div>
+          <div class="form-row">
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input class="input" type="email" id="email" name="email" placeholder="you@studio.com" required>
+            </div>
+            <div class="input-group">
+              <label for="name">Name</label>
+              <input class="input" type="text" id="name" name="name" placeholder="Your name">
+            </div>
+            <div class="input-group">
+              <label for="role">Role</label>
+              <select class="input" id="role" name="role">
+                <option value="">Choose one…</option>
+                <option>Post supervisor / producer</option>
+                <option>Editor / assistant editor</option>
+                <option>Sound</option>
+                <option>VFX</option>
+                <option>Colour / finishing</option>
+                <option>Captions / M&amp;E / localisation</option>
+                <option>Facility / workflow</option>
+                <option>Studio / network post</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <button type="submit" class="form-submit">Join the list →</button>
+          </div>
+          <div class="form-fine">No spam. We'll reach out when there's something real to show you. Unsubscribe any time.</div>
+        </form>
+        <div class="form-success" id="signup-success">
+          <div class="icon">✓ on the list</div>
+          <p>Thanks, you're on the list. We'll be in touch when there's something real to show you.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ FOOTER ═════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="mark">
+          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <rect fill="#171514" width="1024" height="1024" rx="229" ry="229"/>
+            <rect fill="#3B342E" height="300" rx="68" ry="68" width="500" x="322" y="392"/>
+            <rect fill="#A79C90" height="300" rx="68" ry="68" width="500" x="262" y="352"/>
+            <rect fill="#F7F1E8" height="300" rx="68" ry="68" width="500" x="202" y="312"/>
+            <rect fill="#B34F3C" height="420" rx="8" ry="8" width="16" x="504" y="272"/>
+          </svg>
+          <span class="cp-logotype">Cutpoin<span class="t-wrap">t</span></span>
+        </div>
+        <div class="tag">The canonical change layer for post-production.</div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#problem">The problem</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#dashboard">The dashboard</a></li>
+          <li><a href="#why">Why it matters</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#partner">Design partners</a></li>
+          <li><a href="mailto:shir@cutpoint.studio">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:shir@cutpoint.studio">shir@cutpoint.studio</a></li>
+          <li><span style="color: var(--graphite-muted);">Shir Comay · London</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Cutpoint UK Ltd. All rights reserved.</div>
+      <div>ref · CP-WEB-26.05</div>
+    </div>
+  </div>
 </footer>
 
 <script>
-function handleSignup(e) {
-  e.preventDefault();
-  const form = document.getElementById('signupForm');
-  const btn = form.querySelector('.submit-btn');
-  const email = document.getElementById('emailInput').value;
+  const nav = document.getElementById('nav');
+  const onScroll = () => { if (window.scrollY > 8) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
-  btn.textContent = 'Sending…';
-  btn.disabled = true;
-
-  fetch('https://formspree.io/f/xpqodelp', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email: email })
-  })
-  .then(function(res) {
-    if (res.ok) {
-      form.classList.add('submitted');
-    } else {
-      btn.textContent = 'Get early access';
-      btn.disabled = false;
-      alert('Something went wrong. Please try again.');
+  const form = document.getElementById('signup-form');
+  const success = document.getElementById('signup-success');
+  const STORAGE_KEY = 'cutpoint-signup';
+  function showSuccess() { form.style.display = 'none'; success.classList.add('show'); }
+  if (localStorage.getItem(STORAGE_KEY)) showSuccess();
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      form.email.focus(); form.email.style.borderColor = '#B34F3C'; return;
     }
-  })
-  .catch(function() {
-    btn.textContent = 'Get early access';
-    btn.disabled = false;
-    alert('Connection error. Please try again.');
+    const submit = form.querySelector('.form-submit');
+    const submitLabel = submit.textContent;
+    submit.disabled = true; submit.textContent = 'Adding you…';
+    const payload = { email: email, name: form.name.value.trim(), role: form.role.value };
+    const body = new URLSearchParams(Object.assign({ 'form-name': 'cutpoint-signup' }, payload)).toString();
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    })
+    .then((res) => {
+      if (res.ok) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign({}, payload, { ts: Date.now() }))); } catch (err) {}
+        showSuccess();
+      } else {
+        submit.disabled = false; submit.textContent = submitLabel;
+        alert('Something went wrong. Please try again.');
+      }
+    })
+    .catch(() => {
+      submit.disabled = false; submit.textContent = submitLabel;
+      alert('Connection error. Please try again.');
+    });
   });
-}
 </script>
+
 </body>
 </html>
