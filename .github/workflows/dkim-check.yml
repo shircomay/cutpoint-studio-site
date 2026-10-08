@@ -2,6 +2,11 @@ name: DKIM DNS check
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - claude/relaxed-ritchie-jzr37e
+    paths:
+      - .github/workflows/dkim-check.yml
 
 jobs:
   check:
