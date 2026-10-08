@@ -1,0 +1,30 @@
+name: DKIM DNS check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DNS records for cutpoint.studio
+        run: |
+          set +e
+          echo "===DKIM-8888==="
+          dig +short TXT google._domainkey.cutpoint.studio @8.8.8.8
+          echo "===DKIM-1111==="
+          dig +short TXT google._domainkey.cutpoint.studio @1.1.1.1
+          echo "===DKIM-FULL==="
+          dig TXT google._domainkey.cutpoint.studio @8.8.8.8 +noall +comments +answer +authority
+          echo "===NS==="
+          dig +short NS cutpoint.studio @8.8.8.8
+          echo "===SOA==="
+          dig SOA cutpoint.studio @8.8.8.8 +noall +comments +answer +authority
+          echo "===APEX-TXT==="
+          dig +short TXT cutpoint.studio @8.8.8.8
+          echo "===MX==="
+          dig +short MX cutpoint.studio @8.8.8.8
+          echo "===DMARC==="
+          dig +short TXT _dmarc.cutpoint.studio @8.8.8.8
+          echo "===END==="
+          true
