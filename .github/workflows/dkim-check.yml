@@ -1,0 +1,25 @@
+name: DKIM DNS check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM and related DNS records
+        run: |
+          set +e
+          for rr in "TXT google._domainkey.cutpoint.studio" \
+                    "CNAME google._domainkey.cutpoint.studio" \
+                    "MX cutpoint.studio" \
+                    "TXT cutpoint.studio" \
+                    "TXT _dmarc.cutpoint.studio" \
+                    "NS cutpoint.studio"; do
+            set -- $rr
+            echo "===== dig $1 $2 (8.8.8.8) ====="
+            dig @8.8.8.8 "$2" "$1" +noall +comments +answer +authority
+            echo "===== dig $1 $2 (1.1.1.1) ====="
+            dig @1.1.1.1 "$2" "$1" +noall +comments +answer +authority
+          done
+          exit 0
