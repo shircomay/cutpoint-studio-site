@@ -1,0 +1,36 @@
+name: DNS DKIM check
+
+on:
+  push:
+    branches:
+      - claude/relaxed-ritchie-og2r0o
+  workflow_dispatch: {}
+
+jobs:
+  dkim-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM and domain DNS records
+        run: |
+          set +e
+          echo "=== DKIM: google._domainkey.cutpoint.studio TXT ==="
+          dig +noall +answer +comments TXT google._domainkey.cutpoint.studio @8.8.8.8
+          echo "--- short ---"
+          dig +short TXT google._domainkey.cutpoint.studio @8.8.8.8
+          echo "=== DKIM via Cloudflare resolver ==="
+          dig +short TXT google._domainkey.cutpoint.studio @1.1.1.1
+          echo "=== Apex NS ==="
+          dig +short NS cutpoint.studio @8.8.8.8
+          echo "=== Apex MX ==="
+          dig +short MX cutpoint.studio @8.8.8.8
+          echo "=== Apex TXT (SPF) ==="
+          dig +short TXT cutpoint.studio @8.8.8.8
+          echo "=== DMARC ==="
+          dig +short TXT _dmarc.cutpoint.studio @8.8.8.8
+          echo "=== Authoritative check (query domain's own NS directly) ==="
+          NS=$(dig +short NS cutpoint.studio @8.8.8.8 | head -1)
+          echo "Authoritative NS: ${NS:-none found}"
+          if [ -n "$NS" ]; then
+            dig +noall +answer TXT google._domainkey.cutpoint.studio @"$NS"
+          fi
+          exit 0
