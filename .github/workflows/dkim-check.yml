@@ -1,0 +1,33 @@
+name: DKIM DNS check
+
+on:
+  push:
+    branches:
+      - claude/relaxed-ritchie-5v0b4c
+  workflow_dispatch:
+
+jobs:
+  dkim-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM record for cutpoint.studio
+        run: |
+          set +e
+          echo "=== google._domainkey.cutpoint.studio TXT (system resolver) ==="
+          dig +short TXT google._domainkey.cutpoint.studio
+          echo "=== full answer (8.8.8.8) ==="
+          dig TXT google._domainkey.cutpoint.studio @8.8.8.8 +noall +comments +answer +authority
+          echo "=== full answer (1.1.1.1) ==="
+          dig TXT google._domainkey.cutpoint.studio @1.1.1.1 +noall +comments +answer +authority
+          echo "=== authoritative nameservers for cutpoint.studio ==="
+          dig NS cutpoint.studio +short
+          echo "=== DKIM queried directly at authoritative NS ==="
+          for ns in $(dig NS cutpoint.studio +short); do
+            echo "--- @$ns ---"
+            dig TXT google._domainkey.cutpoint.studio @"$ns" +noall +comments +answer +authority
+          done
+          echo "=== related mail DNS (MX / SPF / DMARC) ==="
+          dig MX cutpoint.studio +short
+          dig TXT cutpoint.studio +short
+          dig TXT _dmarc.cutpoint.studio +short
+          exit 0
