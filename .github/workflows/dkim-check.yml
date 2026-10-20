@@ -1,0 +1,45 @@
+name: DKIM DNS check
+
+on:
+  push:
+    branches: [claude/relaxed-ritchie-3z3339]
+    paths: ['.github/workflows/dkim-check.yml']
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM and domain DNS records
+        run: |
+          set +e
+          DOMAIN=cutpoint.studio
+          SELECTOR=google._domainkey.$DOMAIN
+          for r in 8.8.8.8 1.1.1.1; do
+            echo "===== resolver $r ====="
+            echo "--- TXT $SELECTOR ---"
+            dig @$r TXT $SELECTOR +noall +comments +answer
+            echo "--- NS $DOMAIN ---"
+            dig @$r NS $DOMAIN +noall +comments +answer
+            echo "--- SOA $DOMAIN ---"
+            dig @$r SOA $DOMAIN +noall +comments +answer
+            echo "--- A $DOMAIN ---"
+            dig @$r A $DOMAIN +noall +comments +answer
+          done
+          echo "===== authoritative nameservers ====="
+          NSLIST=$(dig @8.8.8.8 NS $DOMAIN +short)
+          echo "NS list: $NSLIST"
+          for ns in $NSLIST; do
+            echo "--- auth $ns TXT $SELECTOR ---"
+            dig @$ns TXT $SELECTOR +noall +comments +answer
+          done
+          echo "===== parent delegation (.studio registry) ====="
+          dig NS $DOMAIN @e.nic.studio +noall +comments +answer +authority
+          echo "===== related mail records ====="
+          echo "--- TXT $DOMAIN (SPF) ---"
+          dig @8.8.8.8 TXT $DOMAIN +short
+          echo "--- TXT _dmarc.$DOMAIN ---"
+          dig @8.8.8.8 TXT _dmarc.$DOMAIN +short
+          echo "--- MX $DOMAIN ---"
+          dig @8.8.8.8 MX $DOMAIN +short
+          true
