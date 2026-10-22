@@ -1,0 +1,33 @@
+name: DKIM diagnostic
+on:
+  push:
+    branches: [claude/relaxed-ritchie-2cxabl]
+jobs:
+  dkim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM and mail-auth DNS records for cutpoint.studio
+        run: |
+          set +e
+          echo "===== TXT google._domainkey.cutpoint.studio (default resolver) ====="
+          dig +noall +comments +answer TXT google._domainkey.cutpoint.studio
+          echo "===== via 8.8.8.8 ====="
+          dig @8.8.8.8 +noall +comments +answer TXT google._domainkey.cutpoint.studio
+          echo "===== via 1.1.1.1 ====="
+          dig @1.1.1.1 +noall +comments +answer TXT google._domainkey.cutpoint.studio
+          echo "===== CNAME check on google._domainkey ====="
+          dig +short CNAME google._domainkey.cutpoint.studio
+          echo "===== NS cutpoint.studio ====="
+          dig +short NS cutpoint.studio
+          echo "===== authoritative answers ====="
+          for ns in $(dig +short NS cutpoint.studio); do
+            echo "--- $ns ---"
+            dig @"$ns" +noall +comments +answer +authority TXT google._domainkey.cutpoint.studio
+          done
+          echo "===== SPF: TXT cutpoint.studio ====="
+          dig +short TXT cutpoint.studio
+          echo "===== DMARC: TXT _dmarc.cutpoint.studio ====="
+          dig +short TXT _dmarc.cutpoint.studio
+          echo "===== MX cutpoint.studio ====="
+          dig +short MX cutpoint.studio
+          exit 0
