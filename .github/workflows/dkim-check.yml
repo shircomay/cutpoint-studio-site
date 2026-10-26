@@ -1,0 +1,36 @@
+name: DKIM DNS check
+
+on:
+  push:
+    branches:
+      - claude/relaxed-ritchie-lwpyaq
+    paths:
+      - .github/workflows/dkim-check.yml
+
+jobs:
+  dkim-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query DKIM and related DNS records
+        run: |
+          set +e
+          for r in 8.8.8.8 1.1.1.1; do
+            echo "=== resolver $r ==="
+            echo "--- TXT google._domainkey.cutpoint.studio ---"
+            dig @$r +noall +answer +comments TXT google._domainkey.cutpoint.studio
+            echo "--- NS cutpoint.studio ---"
+            dig @$r +short NS cutpoint.studio
+            echo "--- TXT cutpoint.studio (SPF) ---"
+            dig @$r +short TXT cutpoint.studio
+            echo "--- TXT _dmarc.cutpoint.studio ---"
+            dig @$r +short TXT _dmarc.cutpoint.studio
+            echo "--- MX cutpoint.studio ---"
+            dig @$r +short MX cutpoint.studio
+          done
+          echo "=== authoritative check ==="
+          NS=$(dig @8.8.8.8 +short NS cutpoint.studio | head -1)
+          echo "first NS: $NS"
+          if [ -n "$NS" ]; then
+            dig @$NS +noall +answer +comments TXT google._domainkey.cutpoint.studio
+          fi
+          exit 0
